@@ -51,7 +51,8 @@ RUN true \
       python-ldap \
       mysqlclient \
       psycopg2 \
-      django-cockroachdb==2.2.*
+      django-cockroachdb==2.2.* \
+      pyparsing==2.4.7
 
 ARG version=1.1.8
 
