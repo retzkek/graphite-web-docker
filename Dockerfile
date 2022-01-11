@@ -96,6 +96,10 @@ RUN mkdir -p /data/graphite/conf && \
     chmod 0775 /data/graphite/storage /data/graphite/storage/whisper && \
     chmod +x /run.sh
 
+RUN addgroup -g 9102 -S ifmon && adduser -u 45438 -S ifmon -G ifmon \
+    && chown -R ifmon:ifmon /data/graphite /var/log/graphite
+USER ifmon
+
 # Expose Port
 EXPOSE 8000
 
