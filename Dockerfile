@@ -1,4 +1,4 @@
-FROM alpine:3.13.5 as base
+FROM alpine:3.14.2 as base
 
 RUN true \
  && apk add --no-cache \
@@ -20,6 +20,8 @@ RUN true \
 FROM base as build
 
 ARG python_binary=python3
+ARG python_extra_flags="--single-version-externally-managed --root=/"
+ENV PYTHONDONTWRITEBYTECODE=1
 
 RUN true \
  && apk add --update \
@@ -37,10 +39,10 @@ RUN true \
  && virtualenv -p $python_binary /opt/graphite \
  && . /opt/graphite/bin/activate \
  && pip install \
-      django==2.2.20 \
+      django==2.2.24 \
       django-statsd-mozilla \
       fadvise \
-      gunicorn==20.0.4 \
+      gunicorn==20.1.0 \
       eventlet>=0.24.1 \
       gevent>=1.4 \
       msgpack==0.6.2 \
@@ -59,7 +61,7 @@ ARG whisper_repo=https://github.com/graphite-project/whisper.git
 RUN git clone -b ${whisper_version} --depth 1 ${whisper_repo} /usr/local/src/whisper \
  && cd /usr/local/src/whisper \
  && . /opt/graphite/bin/activate \
- && $python_binary ./setup.py install
+ && $python_binary ./setup.py install $python_extra_flags
 
 # install graphite
 ARG graphite_version=${version}
@@ -67,10 +69,12 @@ ARG graphite_repo=https://github.com/graphite-project/graphite-web.git
 RUN . /opt/graphite/bin/activate \
  && git clone -b ${graphite_version} --depth 1 ${graphite_repo} /usr/local/src/graphite-web \
  && cd /usr/local/src/graphite-web \
- && pip install -r requirements.txt \
- && $python_binary ./setup.py install
+ && pip3 install -r requirements.txt \
+ && $python_binary ./setup.py install $python_extra_flags
 
 # config graphite
+ADD local_settings.py /opt/graphite/webapp/graphite/local_settings.py
+ADD graphite_wsgi.py /opt/graphite/conf
 WORKDIR /opt/graphite/webapp
 RUN mkdir -p /var/log/graphite/ \
   && PYTHONPATH=/opt/graphite/webapp /opt/graphite/bin/django-admin.py collectstatic --noinput --settings=graphite.settings
