@@ -1,4 +1,4 @@
-FROM alpine:3.14.2 as base
+FROM docker.io/library/alpine:3.19 as base
 
 RUN true \
  && apk add --no-cache \
@@ -33,36 +33,12 @@ RUN true \
       python3-dev \
       rrdtool-dev \
       wget \
- && curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py \
- && $python_binary /tmp/get-pip.py pip==20.1.1 setuptools==50.3.2 wheel==0.35.1 && rm /tmp/get-pip.py \
- && pip install virtualenv==16.7.10 \
- && virtualenv -p $python_binary /opt/graphite \
+ && $python_binary -m venv /opt/graphite \
  && . /opt/graphite/bin/activate \
  && pip install \
-      django==2.2.24 \
-      django-statsd-mozilla \
-      fadvise \
-      gunicorn==20.1.0 \
-      eventlet>=0.24.1 \
-      gevent>=1.4 \
-      msgpack==0.6.2 \
-      redis \
-      rrdtool \
-      python-ldap \
-      mysqlclient \
-      psycopg2 \
-      django-cockroachdb==2.2.* \
-      pyparsing==2.4.7
+      django~=3.2
 
-ARG version=1.1.8
-
-# install whisper
-ARG whisper_version=${version}
-ARG whisper_repo=https://github.com/graphite-project/whisper.git
-RUN git clone -b ${whisper_version} --depth 1 ${whisper_repo} /usr/local/src/whisper \
- && cd /usr/local/src/whisper \
- && . /opt/graphite/bin/activate \
- && $python_binary ./setup.py install $python_extra_flags
+ARG version=1.1.10
 
 # install graphite
 ARG graphite_version=${version}
@@ -71,14 +47,14 @@ RUN . /opt/graphite/bin/activate \
  && git clone -b ${graphite_version} --depth 1 ${graphite_repo} /usr/local/src/graphite-web \
  && cd /usr/local/src/graphite-web \
  && pip3 install -r requirements.txt \
- && $python_binary ./setup.py install $python_extra_flags
+ && $python_binary ./setup.py install --prefix=/opt/graphite --install-lib=/opt/graphite/webapp $python_extra_flags
 
 # config graphite
 ADD local_settings.py /opt/graphite/webapp/graphite/local_settings.py
 ADD graphite_wsgi.py /opt/graphite/conf
 WORKDIR /opt/graphite/webapp
 RUN mkdir -p /var/log/graphite/ \
-  && PYTHONPATH=/opt/graphite/webapp /opt/graphite/bin/django-admin.py collectstatic --noinput --settings=graphite.settings
+  && PYTHONPATH=/opt/graphite/webapp /opt/graphite/bin/django-admin collectstatic --noinput --settings=graphite.settings
 
 FROM base as production
 

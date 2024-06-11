@@ -1,6 +1,6 @@
 #!/bin/sh
 
-test -e "/data/graphite/storage/graphite.db" && echo "graphite.db already exists!" || /opt/graphite/bin/django-admin.py migrate --settings=graphite.settings --run-syncdb
+test -e "/data/graphite/storage/graphite.db" && echo "graphite.db already exists!" || /opt/graphite/bin/django-admin migrate --settings=graphite.settings --run-syncdb
 
 cd /opt/graphite/conf
 

@@ -38,10 +38,10 @@ LOG_RENDERING_PERFORMANCE = os.environ.get("GRAPHITE_LOG_RENDERING_PERFORMANCE",
 LOG_CACHE_PERFORMANCE = os.environ.get("GRAPHITE_LOG_CACHE_PERFORMANCE", "true").lower() in ['1', 'true', 'yes']
 
 # Filenames for log output, set to '-' to log to stderr
-LOG_FILE_INFO = os.environ.get("GRAPHITE_LOG_FILE_INFO", 'info.log')
-LOG_FILE_EXCEPTION = os.environ.get("GRAPHITE_LOG_FILE_EXCEPTION", 'exception.log')
-LOG_FILE_CACHE = os.environ.get("GRAPHITE_LOG_FILE_CACHE", 'cache.log')
-LOG_FILE_RENDERING = os.environ.get("GRAPHITE_LOG_FILE_RENDERING", 'rendering.log')
+LOG_FILE_INFO = os.environ.get("GRAPHITE_LOG_FILE_INFO", '-')
+LOG_FILE_EXCEPTION = os.environ.get("GRAPHITE_LOG_FILE_EXCEPTION", '-')
+LOG_FILE_CACHE = os.environ.get("GRAPHITE_LOG_FILE_CACHE", '-')
+LOG_FILE_RENDERING = os.environ.get("GRAPHITE_LOG_FILE_RENDERING", '-')
 
 # Enable full debug page display on exceptions (Internal Server Error pages)
 DEBUG = os.environ.get("GRAPHITE_DEBUG", "false").lower() in ['1', 'true', 'yes']
